@@ -1,0 +1,464 @@
+C51 COMPILER V9.60.0.0   MAIN                                                              04/07/2021 12:36:45 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <at89c5131.h>
+   2          #include "lcd.h"
+   3          #include <string.h>
+   4          #include <stdio.h>
+   5          #include "serial.c"
+*** WARNING C280 IN LINE 58 OF serial.c: 'temp': unreferenced local variable
+   6          sbit P = P1^7;
+   7          
+   8          sbit counter_A = P1^0;
+   9          sbit counter_B = P1^1;
+  10          sbit counter_C = P1^2;
+  11          sbit counter_D = P1^3;
+  12          
+  13          
+  14          int toggle_check(bit a1,bit  b1,bit c1, bit d1, bit a2, bit b2, bit c2, bit d2)
+  15          {
+  16   1        if (a1 ^ a2== 1)
+  17   1        {return 1;}
+  18   1        
+  19   1        else if (b1 ^ b2 ==1)
+  20   1        {return 2;}
+  21   1        
+  22   1        else if (c1 ^ c2 ==1)
+  23   1        {return 3;}
+  24   1        
+  25   1        else if (d1 ^ d2==1)
+  26   1        {return 4;}
+  27   1        
+  28   1        else {return 0;}
+  29   1      }
+  30          
+  31          void main(void)
+  32          { unsigned int token_number = 0;
+  33   1        unsigned char token[2];
+  34   1        unsigned char ch;
+  35   1        unsigned int low = 0;
+  36   1        unsigned int high = 0;
+  37   1        bit a,b,c,d;
+  38   1        unsigned char a_state[2];
+  39   1        unsigned char b_state[2];
+  40   1        unsigned char c_state[2]; 
+  41   1        unsigned char d_state[2];
+  42   1        bit flagg=0;
+  43   1        int toggle;
+  44   1        a_state[0] = 32;
+  45   1        a_state[1] = 32;
+  46   1        b_state[0] = 32;
+  47   1        b_state[1] = 32;
+  48   1        c_state[0] = 32;
+  49   1        c_state[1] = 32;
+  50   1        d_state[0] = 32;
+  51   1        d_state[1] = 32;
+  52   1        //sprintf(a_state,"%s","XX");
+  53   1        //sprintf(b_state,"%s","XX");
+C51 COMPILER V9.60.0.0   MAIN                                                              04/07/2021 12:36:45 PAGE 2   
+
+  54   1        //sprintf(c_state,"%s","  ");
+  55   1        //sprintf(d_state,"%s","  ");
+  56   1        lcd_init();
+  57   1        uart_init();
+  58   1        
+  59   1        lcd_write_string("A:   B:  ");
+  60   1        lcd_cmd(0xC0);
+  61   1        lcd_write_string("C:   D:  "); 
+  62   1        ch = 'p';
+  63   1        ch = receive_char();
+  64   1        if (ch == 't')
+  65   1        {
+  66   2          token_number = token_number + 1;
+  67   2          lcd_cmd(0x01);  // LCD clear
+  68   2          lcd_cmd(0x80);
+  69   2          token[0] = token_number/10 + 48;
+  70   2          token[1] = token_number%10 + 48;
+  71   2          lcd_write_string("Token: "); // printing the "token: XX" on lcd
+  72   2          lcd_write_char(token[0]);
+  73   2          lcd_write_char(token[1]);
+  74   2          msdelay(2000);
+  75   2          high = high + 1;
+  76   2        }
+  77   1        lcd_cmd(0x01);  // LCD clear
+  78   1        lcd_cmd(0x80);
+  79   1        lcd_write_string("A:   B:  ");
+  80   1        lcd_cmd(0x8B);
+  81   1        lcd_write_string("     ");
+  82   1        lcd_cmd(0xC0);
+  83   1        lcd_write_string("C:   D:  ");
+  84   1        
+  85   1        
+  86   1        //token_number = 90;
+  87   1        //high = 90;
+  88   1        //low = 85;
+  89   1        
+  90   1        
+  91   1        
+  92   1        
+  93   1        
+  94   1        ch = 'p';
+  95   1        while(1)
+  96   1        {
+  97   2          a = counter_A;
+  98   2          b = counter_B;
+  99   2          c = counter_C;
+ 100   2          d = counter_D;
+ 101   2          msdelay(1000);
+ 102   2          ch = SBUF;
+ 103   2          if (ch=='t' && rx_complete == 1)
+ 104   2          {
+ 105   3            if (token_number==99) {flagg=1;}
+ 106   3            token_number = increment(token_number);
+ 107   3            lcd_cmd(0x01);  // LCD clear
+ 108   3            lcd_cmd(0x80);
+ 109   3            token[0] = token_number/10 + 48;
+ 110   3            token[1] = token_number%10 + 48;
+ 111   3            lcd_write_string("Token: "); // printing the "token: XX" on lcd
+ 112   3            lcd_write_char(token[0]);
+ 113   3            lcd_write_char(token[1]);
+ 114   3            msdelay(2000);
+ 115   3            high = increment(high);
+C51 COMPILER V9.60.0.0   MAIN                                                              04/07/2021 12:36:45 PAGE 3   
+
+ 116   3            rx_complete = 0;
+ 117   3            lcd_cmd(0x80);
+ 118   3              lcd_write_string("                ");
+ 119   3              lcd_cmd(0xC0);
+ 120   3              lcd_write_string("                ");
+ 121   3              lcd_cmd(0x80);
+ 122   3              lcd_write_string("A:");
+ 123   3              lcd_write_char(a_state[0]);
+ 124   3              lcd_write_char(a_state[1]);
+ 125   3              lcd_write_char(32);
+ 126   3              lcd_cmd(0x85);
+ 127   3              lcd_write_string("B:");
+ 128   3              lcd_write_char(b_state[0]);
+ 129   3              lcd_write_char(b_state[1]);
+ 130   3              lcd_write_char(32);
+ 131   3              lcd_write_string("      ");
+ 132   3              
+ 133   3              lcd_cmd(0xC0);
+ 134   3              lcd_write_string("C:");
+ 135   3              lcd_write_char(c_state[0]);
+ 136   3              lcd_write_char(c_state[1]);
+ 137   3              lcd_write_char(32);
+ 138   3              lcd_cmd(0xC5);
+ 139   3              lcd_write_string("D:");
+ 140   3              lcd_write_char(d_state[0]);
+ 141   3              lcd_write_char(d_state[1]);
+ 142   3              lcd_write_char(32);
+ 143   3              lcd_write_string("      ");
+ 144   3          }
+ 145   2          
+ 146   2          toggle = toggle_check(a,b,c,d,counter_A,counter_B,counter_C,counter_D);
+ 147   2          if (toggle==0)
+ 148   2          {
+ 149   3          continue;}
+ 150   2          
+ 151   2          else if (toggle==1)
+ 152   2          {
+ 153   3            if (high > low || flagg==1)
+ 154   3            { low = increment(low);
+ 155   4              if (high>=low)
+ 156   4              {flagg=0;}
+ 157   4              //sprintf(a_state, "%d",low);
+ 158   4              /*
+ 159   4              lcd_cmd(0x80);
+ 160   4              lcd_write_string("                ");
+ 161   4              lcd_cmd(0xC0);
+ 162   4              lcd_write_string("                ");
+ 163   4              */
+ 164   4              lcd_cmd(0x80);
+ 165   4              lcd_write_string("A:");
+ 166   4              a_state[0] = low/10 + 48;
+ 167   4              a_state[1] = low%10 + 48;
+ 168   4              lcd_write_char(a_state[0]);
+ 169   4              lcd_write_char(a_state[1]);
+ 170   4              lcd_write_char(32);
+ 171   4              /*
+ 172   4              lcd_cmd(0x85);
+ 173   4              lcd_write_string("B:");
+ 174   4              lcd_write_char(b_state[0]);
+ 175   4              lcd_write_char(b_state[1]);
+ 176   4              lcd_cmd(0x8B);
+ 177   4              lcd_write_string("     ");
+C51 COMPILER V9.60.0.0   MAIN                                                              04/07/2021 12:36:45 PAGE 4   
+
+ 178   4              
+ 179   4              lcd_cmd(0xC0);
+ 180   4              lcd_write_string("C:");
+ 181   4              lcd_write_string(c_state);
+ 182   4              lcd_cmd(0xC5);
+ 183   4              lcd_write_string("D:");
+ 184   4              lcd_write_char(d_state[0]);
+ 185   4              lcd_write_char(d_state[1]);
+ 186   4              */
+ 187   4            }
+ 188   3            
+ 189   3            else
+ 190   3            {
+ 191   4              /*
+ 192   4              lcd_cmd(0x80);
+ 193   4              lcd_write_string("                ");
+ 194   4              lcd_cmd(0xC0);
+ 195   4              lcd_write_string("                ");
+ 196   4              */
+ 197   4              lcd_cmd(0x80);
+ 198   4              lcd_write_string("A:   ");
+ 199   4              a_state[0] = 32;
+ 200   4              a_state[1] = 32;
+ 201   4              /*
+ 202   4              lcd_cmd(0x85);
+ 203   4              lcd_write_string("B:");
+ 204   4              lcd_write_char(b_state[0]);
+ 205   4              lcd_write_char(b_state[1]);
+ 206   4              lcd_cmd(0x8B);
+ 207   4              lcd_write_string("     ");
+ 208   4              
+ 209   4              lcd_cmd(0xC0);
+ 210   4              lcd_write_string("C:");
+ 211   4              lcd_write_string(c_state);
+ 212   4              lcd_cmd(0xC5);
+ 213   4              lcd_write_string("D:");
+ 214   4              lcd_write_char(d_state[0]);
+ 215   4              lcd_write_char(d_state[1]);
+ 216   4              */
+ 217   4            }
+ 218   3          }
+ 219   2          
+ 220   2          
+ 221   2          
+ 222   2          else if (toggle==2)
+ 223   2          {
+ 224   3            if (high > low || flagg==1)
+ 225   3            {
+ 226   4              low = increment(low);
+ 227   4              if (high>=low)
+ 228   4              {flagg=0;}
+ 229   4              /*
+ 230   4              lcd_cmd(0x80);
+ 231   4              lcd_write_string("                ");
+ 232   4              lcd_cmd(0xC0);
+ 233   4              lcd_write_string("                ");
+ 234   4              lcd_cmd(0x80);
+ 235   4              */
+ 236   4              b_state[0] = low/10 + 48;
+ 237   4              b_state[1] = low%10 + 48;
+ 238   4              /*
+ 239   4              lcd_write_string("A:");
+C51 COMPILER V9.60.0.0   MAIN                                                              04/07/2021 12:36:45 PAGE 5   
+
+ 240   4              lcd_write_string(a_state);
+ 241   4              */
+ 242   4              lcd_cmd(0x85);
+ 243   4              lcd_write_string("B:");
+ 244   4              lcd_write_char(b_state[0]);
+ 245   4              lcd_write_char(b_state[1]);
+ 246   4              lcd_write_char(32);
+ 247   4              lcd_cmd(0x8B);
+ 248   4              lcd_write_string("     ");
+ 249   4              /*
+ 250   4              
+ 251   4              lcd_cmd(0xC0);
+ 252   4              lcd_write_string("C:");
+ 253   4              lcd_write_string(c_state);
+ 254   4              lcd_cmd(0xC5);
+ 255   4              lcd_write_string("D:");
+ 256   4              lcd_write_char(d_state[0]);
+ 257   4              lcd_write_char(d_state[1]);
+ 258   4              */
+ 259   4            }
+ 260   3            
+ 261   3            else
+ 262   3            { 
+ 263   4              /*
+ 264   4              lcd_cmd(0x80);
+ 265   4              lcd_write_string("                ");
+ 266   4              lcd_cmd(0xC0);
+ 267   4              lcd_write_string("                ");
+ 268   4              lcd_cmd(0x80);
+ 269   4              lcd_write_string("A:");
+ 270   4              lcd_write_string(a_state);
+ 271   4              */
+ 272   4              lcd_cmd(0x85);
+ 273   4              lcd_write_string("B:   ");
+ 274   4              lcd_cmd(0x8B);
+ 275   4              lcd_write_string("     ");
+ 276   4              b_state[0] = 32;
+ 277   4              b_state[1] = 32;
+ 278   4              /*
+ 279   4              lcd_cmd(0xC0);
+ 280   4              lcd_write_string("C:");
+ 281   4              lcd_write_string(c_state);
+ 282   4              lcd_cmd(0xC5);
+ 283   4              lcd_write_string("D:");
+ 284   4              lcd_write_char(d_state[0]);
+ 285   4              lcd_write_char(d_state[1]);
+ 286   4              */
+ 287   4            }
+ 288   3          }
+ 289   2          
+ 290   2          
+ 291   2          else if (toggle==3)
+ 292   2          {
+ 293   3            if (high > low || flagg==1)
+ 294   3            {
+ 295   4              low = increment(low);
+ 296   4              if (high>=low)
+ 297   4              {flagg=0;}
+ 298   4              c_state[0] = low/10 + 48;
+ 299   4              c_state[1] = low%10 + 48;
+ 300   4              /*
+ 301   4              lcd_cmd(0x80);
+C51 COMPILER V9.60.0.0   MAIN                                                              04/07/2021 12:36:45 PAGE 6   
+
+ 302   4              lcd_write_string("                ");
+ 303   4              lcd_cmd(0xC0);
+ 304   4              lcd_write_string("                ");
+ 305   4              lcd_cmd(0x80);
+ 306   4              lcd_write_string("A:");
+ 307   4              lcd_write_string(a_state);
+ 308   4              lcd_cmd(0x85);
+ 309   4              lcd_write_string("B:");
+ 310   4              lcd_write_char(b_state[0]);
+ 311   4              lcd_write_char(b_state[1]);
+ 312   4              lcd_cmd(0x8B);
+ 313   4              lcd_write_string("     ");
+ 314   4              */
+ 315   4              lcd_cmd(0xC0);
+ 316   4              lcd_write_string("C:");
+ 317   4              lcd_write_char(c_state[0]);
+ 318   4              lcd_write_char(c_state[1]);
+ 319   4              lcd_write_char(32);
+ 320   4              /*
+ 321   4              lcd_cmd(0xC5);
+ 322   4              lcd_write_string("D:");
+ 323   4              lcd_write_char(d_state[0]);
+ 324   4              lcd_write_char(d_state[1]);
+ 325   4              */
+ 326   4            }
+ 327   3            
+ 328   3            else
+ 329   3            {
+ 330   4              /*
+ 331   4              lcd_cmd(0x80);
+ 332   4              lcd_write_string("                ");
+ 333   4              lcd_cmd(0xC0);
+ 334   4              lcd_write_string("                ");
+ 335   4              lcd_cmd(0x80);
+ 336   4              lcd_write_string("A:");
+ 337   4              lcd_write_string(a_state);
+ 338   4              lcd_cmd(0x85);
+ 339   4              lcd_write_string("B:");
+ 340   4              lcd_write_char(b_state[0]);
+ 341   4              lcd_write_char(b_state[1]);
+ 342   4              lcd_cmd(0x8B);
+ 343   4              lcd_write_string("     ");
+ 344   4              */
+ 345   4              
+ 346   4              lcd_cmd(0xC0);
+ 347   4              lcd_write_string("C:   ");
+ 348   4              c_state[0] = 32;
+ 349   4              c_state[1] = 32;
+ 350   4              /*
+ 351   4              lcd_cmd(0xC5);
+ 352   4              lcd_write_string("D:");
+ 353   4              lcd_write_char(d_state[0]);
+ 354   4              lcd_write_char(d_state[1]);
+ 355   4              */
+ 356   4            }
+ 357   3          }
+ 358   2          
+ 359   2          
+ 360   2          
+ 361   2          
+ 362   2          else if (toggle==4)
+ 363   2          {
+C51 COMPILER V9.60.0.0   MAIN                                                              04/07/2021 12:36:45 PAGE 7   
+
+ 364   3            if (high > low || flagg==1)
+ 365   3            {
+ 366   4              low = increment(low);
+ 367   4              if (high>=low)
+ 368   4              {flagg=0;}
+ 369   4              d_state[0] = low/10 + 48;
+ 370   4              d_state[1] = low%10 + 48;
+ 371   4              /*
+ 372   4              lcd_cmd(0x80);
+ 373   4              lcd_write_string("                ");
+ 374   4              lcd_cmd(0xC0);
+ 375   4              lcd_write_string("                ");
+ 376   4              lcd_cmd(0x80);
+ 377   4              lcd_write_string("A:");
+ 378   4              lcd_write_string(a_state);
+ 379   4              lcd_cmd(0x85);
+ 380   4              lcd_write_string(" B:");
+ 381   4              lcd_write_char(b_state[0]);
+ 382   4              lcd_write_char(b_state[1]);
+ 383   4              lcd_cmd(0x8B);
+ 384   4              lcd_write_string("     ");
+ 385   4              
+ 386   4              lcd_cmd(0xC0);
+ 387   4              lcd_write_string("C:");
+ 388   4              lcd_write_string(c_state);
+ 389   4              */
+ 390   4              lcd_cmd(0xC5);
+ 391   4              lcd_write_string("D:");
+ 392   4              lcd_write_char(d_state[0]);
+ 393   4              lcd_write_char(d_state[1]);
+ 394   4            }
+ 395   3            
+ 396   3            else
+ 397   3            {
+ 398   4              /*
+ 399   4              lcd_cmd(0x80);
+ 400   4              lcd_write_string("                ");
+ 401   4              lcd_cmd(0xC0);
+ 402   4              lcd_write_string("                ");
+ 403   4              lcd_cmd(0x80);
+ 404   4              lcd_write_string("A:");
+ 405   4              lcd_write_string(a_state);
+ 406   4              lcd_cmd(0x85);
+ 407   4              lcd_write_string(" B:");
+ 408   4              lcd_write_char(b_state[0]);
+ 409   4              lcd_write_char(b_state[1]);
+ 410   4              lcd_cmd(0x8B);
+ 411   4              lcd_write_string("     ");
+ 412   4              
+ 413   4              lcd_cmd(0xC0);
+ 414   4              lcd_write_string("C:");
+ 415   4              lcd_write_string(c_state);
+ 416   4              */
+ 417   4              lcd_cmd(0xC5);
+ 418   4              lcd_write_string("D:   ");
+ 419   4              d_state[0] = 32;
+ 420   4              d_state[1] = 32;
+ 421   4            }
+ 422   3          }
+ 423   2          ch = 'p';
+ 424   2        }
+ 425   1      }
+C51 COMPILER V9.60.0.0   MAIN                                                              04/07/2021 12:36:45 PAGE 8   
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1467    ----
+   CONSTANT SIZE    =     94    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      32
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2      13
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
